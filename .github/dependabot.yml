@@ -1,0 +1,29 @@
+# Opens pull requests to update the dependencies. The Check workflow runs on them, so an update
+# that breaks the server is noticed before it's merged.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /tests/smoke
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker
+    directories:
+      - /docker/server
+      - /docker/test-server
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
