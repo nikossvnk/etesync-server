@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.15.0
+- Update Django to 5.2 (LTS), 4.2 is not supported anymore
+- Update all of the dependencies to their current versions
+- Fix requests for the items and members of a collection failing with newer versions of FastAPI
+
 ## Version 0.14.2
 - Fix issue with some requests failing in some scenarios with the JS client.
   - The JS client was omitting optional fields which were accidentally made to be required. It happened because pydantic v2 changed the behavior in a few ways (for the better fwiw) and we missed a few places when upgrading.
