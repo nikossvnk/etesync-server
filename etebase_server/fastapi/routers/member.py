@@ -12,10 +12,10 @@ from ..msgpack import MsgpackResponse, MsgpackRoute
 from ..stoken_handler import filter_by_stoken_and_limit
 from ..utils import PERMISSIONS_READ, PERMISSIONS_READWRITE, BaseModel, get_object_or_404, permission_responses
 from .authentication import get_authenticated_user
-from .collection import get_collection, verify_collection_admin
+from .collection import COLLECTION_PREFIX, get_collection, verify_collection_admin
 
 User = get_typed_user_model()
-member_router = APIRouter(route_class=MsgpackRoute, responses=permission_responses)
+member_router = APIRouter(prefix=COLLECTION_PREFIX, route_class=MsgpackRoute, responses=permission_responses)
 MemberQuerySet = QuerySet[models.CollectionMember]
 default_queryset: MemberQuerySet = models.CollectionMember.objects.all()
 

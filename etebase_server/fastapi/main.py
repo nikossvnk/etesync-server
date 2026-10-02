@@ -30,11 +30,10 @@ def create_application(prefix="", middlewares=[]):
     )
     VERSION = "v1"  # noqa: N806
     BASE_PATH = f"{prefix}/api/{VERSION}"  # noqa: N806
-    COLLECTION_UID_MARKER = "{collection_uid}"  # noqa: N806
     app.include_router(authentication_router, prefix=f"{BASE_PATH}/authentication", tags=["authentication"])
     app.include_router(collection_router, prefix=f"{BASE_PATH}/collection", tags=["collection"])
-    app.include_router(item_router, prefix=f"{BASE_PATH}/collection/{COLLECTION_UID_MARKER}", tags=["item"])
-    app.include_router(member_router, prefix=f"{BASE_PATH}/collection/{COLLECTION_UID_MARKER}", tags=["member"])
+    app.include_router(item_router, prefix=f"{BASE_PATH}/collection", tags=["item"])
+    app.include_router(member_router, prefix=f"{BASE_PATH}/collection", tags=["member"])
     app.include_router(
         invitation_incoming_router, prefix=f"{BASE_PATH}/invitation/incoming", tags=["incoming invitation"]
     )

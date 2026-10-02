@@ -33,7 +33,10 @@ from .authentication import get_authenticated_user
 from .websocket import TicketOut, TicketRequest, get_ticket
 
 collection_router = APIRouter(route_class=MsgpackRoute, responses=permission_responses)
-item_router = APIRouter(route_class=MsgpackRoute, responses=permission_responses)
+# The collection is part of the path of all of these routes. It has to be in the prefix of the router itself
+# (rather than only where the router is included) so that FastAPI knows collection_uid is a path parameter.
+COLLECTION_PREFIX = "/{collection_uid}"
+item_router = APIRouter(prefix=COLLECTION_PREFIX, route_class=MsgpackRoute, responses=permission_responses)
 CollectionQuerySet = QuerySet[models.Collection]
 CollectionItemQuerySet = QuerySet[models.CollectionItem]
 
