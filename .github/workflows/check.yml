@@ -1,0 +1,99 @@
+name: Check
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  schedule:
+    # Also every Monday morning, to notice dependencies that got known security issues
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code:
+    name: Code and dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt ruff pip-audit
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Django checks
+        run: python -W error::DeprecationWarning -W error::PendingDeprecationWarning manage.py check
+
+      - name: Check that no migrations are missing
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Check the dependencies for known security issues
+        run: pip-audit --requirement requirements.txt --no-deps --disable-pip
+
+  server:
+    name: Build and try the server
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/smoke/package-lock.json
+
+      - name: Build the images
+        run: |
+          docker build -t test-server -f docker/test-server/Dockerfile --build-arg ETESYNC_VERSION=ci .
+          docker build -t server -f docker/server/Dockerfile .
+
+      - name: Check the test server with the Etebase client
+        run: |
+          docker run -d --name test-server -p 127.0.0.1:3735:3735 test-server
+          timeout 60 sh -c 'until curl -sf -o /dev/null http://127.0.0.1:3735/api/v1/authentication/is_etebase/; do sleep 1; done'
+          npm ci --prefix tests/smoke
+          node tests/smoke/smoke.js http://127.0.0.1:3735
+
+      - name: Check the server image
+        run: |
+          docker run -d --name server -e ETEBASE_ALLOWED_HOSTS=127.0.0.1 -p 127.0.0.1:3736:3735 server
+          url=http://127.0.0.1:3736
+          timeout 60 sh -c "until curl -sf -o /dev/null $url/api/v1/authentication/is_etebase/; do sleep 1; done"
+
+          expect() {
+            status="$(curl -s -o /dev/null -w '%{http_code}' "${@:3}")"
+            if [ "$status" != "$2" ]; then
+              echo "::error::$1: expected $2, got $status"
+              exit 1
+            fi
+            echo "ok - $1"
+          }
+          expect "the admin site is served" 200 $url/admin/login/
+          expect "the static files are served" 200 $url/static/admin/css/base.css
+          expect "it is not in debug mode" 404 -X POST $url/api/v1/test/authentication/reset/
+          expect "other hosts are rejected" 400 -H "Host: other.example" $url/api/v1/authentication/is_etebase/
+          test "$(docker exec server id -un)" = etebase && echo "ok - it does not run as root"
+
+      - name: Show the logs of the servers
+        if: failure()
+        run: |
+          docker logs test-server || true
+          docker logs server || true

@@ -1,0 +1,8 @@
+{
+  "name": "etebase-server-smoke-test",
+  "private": true,
+  "description": "Checks a running test server with the real Etebase client",
+  "dependencies": {
+    "etebase": "0.43.1"
+  }
+}
