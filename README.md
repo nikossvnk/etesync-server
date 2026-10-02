@@ -145,6 +145,22 @@ Here are the update steps:
 4. Run the migration tool to migrate all of your data.
 5. Add your new EteSync 2.0 accounts to all of your devices.
 
+# Docker
+
+`docker/server/Dockerfile` builds an image to run the server with. It's not in debug mode, only the admin can create users, and it keeps all of its data (the database, the configuration and the secret key) in the `/data` volume.
+
+```
+docker build -t etebase-server -f docker/server/Dockerfile .
+docker run -d --name etebase -p 3735:3735 -v etebase-data:/data -e ETEBASE_ALLOWED_HOSTS=etebase.example.com etebase-server
+docker exec -it etebase python manage.py createsuperuser
+```
+
+`ETEBASE_ALLOWED_HOSTS` is the host name (or names, separated by commas) the server is reached at. It's only used the first time the server is started, to create `/data/etebase-server.ini`, which can be changed afterwards.
+The server listens on port 3735 without encryption, so put it behind a reverse proxy that handles TLS, as described in the production deployment section above.
+The image uses SQLite. To use another database add its driver to the image and change the `[database]` section of the configuration.
+
+The image is published to the GitHub container registry when a version tag is pushed.
+
 # Testing
 
 Docker images named `etesync/test-server:<version>` and `:latest` are available for testing etesync clients.
