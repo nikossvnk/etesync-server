@@ -161,6 +161,8 @@ The image uses SQLite. To use another database add its driver to the image and c
 
 The image is published to the GitHub container registry when a version tag is pushed.
 
+To run it in production, behind a reverse proxy that takes care of HTTPS, see [deploy/README.md](deploy/README.md).
+
 # Testing
 
 Docker images named `etesync/test-server:<version>` and `:latest` are available for testing etesync clients.

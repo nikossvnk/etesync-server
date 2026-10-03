@@ -1,0 +1,15 @@
+{
+	# Where Let's Encrypt sends notices about the certificate, optional
+	email {$ACME_EMAIL}
+}
+
+{$ETEBASE_DOMAIN} {
+	reverse_proxy etebase:3735
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+}
