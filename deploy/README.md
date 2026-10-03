@@ -30,7 +30,7 @@ The notes are end-to-end encrypted, so the server (and its backups) can't read t
    ```
    cd /opt/etebase
    cp .env.example .env
-   nano .env    # set ETEBASE_DOMAIN, and optionally ACME_EMAIL
+   nano .env    # set ETEBASE_DOMAIN
    ```
 
 3. Start it:
@@ -66,8 +66,8 @@ To restore a backup:
 
 ```
 sudo docker compose stop etebase
-sudo docker compose run --rm -v "$PWD/backups:/backups:ro" --entrypoint sh etebase -c \
-  'cd /data && rm -rf media && tar -xzf /backups/etebase-<date>.tar.gz && mv backup.sqlite3 db.sqlite3'
+sudo cat backups/etebase-<date>.tar.gz | sudo docker compose run --rm -T --entrypoint sh etebase -c \
+  'cd /data && rm -rf media && tar -xzf - && mv backup.sqlite3 db.sqlite3'
 sudo docker compose start etebase
 ```
 

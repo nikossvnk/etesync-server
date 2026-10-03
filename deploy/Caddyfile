@@ -1,8 +1,3 @@
-{
-	# Where Let's Encrypt sends notices about the certificate, optional
-	email {$ACME_EMAIL}
-}
-
 {$ETEBASE_DOMAIN} {
 	reverse_proxy etebase:3735
 
