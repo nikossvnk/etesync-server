@@ -30,8 +30,17 @@ The notes are end-to-end encrypted, so the server (and its backups) can't read t
    ```
    cd /opt/etebase
    cp .env.example .env
-   nano .env    # set ETEBASE_DOMAIN
+   nano .env    # set ETEBASE_DOMAIN, ADMIN_USER and ADMIN_PASSWORD_HASH (see below)
    ```
+
+   The admin site (`/admin/`) asks for a separate user name and password before it's shown, because Django
+   doesn't limit how often a password can be tried. Create the hash of that password with:
+
+   ```
+   sudo docker compose run --rm caddy caddy hash-password
+   ```
+
+   and put it in `.env` as `ADMIN_PASSWORD_HASH`, with single quotes around it (the hash contains `$` characters).
 
 3. Start it:
 
@@ -42,7 +51,8 @@ The notes are end-to-end encrypted, so the server (and its backups) can't read t
 
    `https://<your host name>/api/v1/authentication/is_etebase/` should now answer with an empty page (and status 200).
 
-4. Create the admin account, and log in to the admin site at `https://<your host name>/admin/`:
+4. Create the admin account, and log in to the admin site at `https://<your host name>/admin/`
+   (first with `ADMIN_USER` and its password, then with the admin account):
 
    ```
    sudo docker compose exec etebase python manage.py createsuperuser
@@ -81,6 +91,25 @@ sudo docker compose up -d
 ```
 
 The database is migrated when the server starts. Make a backup before updating.
+
+## Blocking password guessing
+
+Caddy writes an access log to `logs/access.log`. With fail2ban, the addresses that try a wrong password
+(of the app, or of the admin site's prompt) 10 times within 10 minutes are blocked for an hour:
+
+```
+sudo apt install fail2ban
+sudo cp fail2ban/filter.d/etebase.conf /etc/fail2ban/filter.d/
+sudo cp fail2ban/jail.d/etebase.local /etc/fail2ban/jail.d/
+sudo systemctl restart fail2ban
+sudo fail2ban-client status etebase    # shows the blocked addresses
+```
+
+Change `logpath` in `etebase.local` if this directory isn't `/opt/etebase`. To unblock an address: `sudo fail2ban-client set etebase unbanip <address>`.
+
+## Limits
+
+Caddy rejects requests larger than 50 MB (set in the `Caddyfile`), so that a user can't fill the disk with a few uploads.
 
 ## Security
 

@@ -1,4 +1,23 @@
 {$ETEBASE_DOMAIN} {
+	# Limit the size of requests, so that one user can't fill the disk with a few uploads
+	request_body {
+		max_size 50MB
+	}
+
+	# A password in front of the admin site, in addition to Django's own login, because Django
+	# doesn't limit how often a password can be tried
+	basic_auth /admin* {
+		{$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
+	}
+
+	# Read by fail2ban to block the addresses that keep trying wrong passwords
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+
 	reverse_proxy etebase:3735
 
 	header {

@@ -19,6 +19,8 @@ services:
       - etebase
     environment:
       ETEBASE_DOMAIN: ${ETEBASE_DOMAIN}
+      ADMIN_USER: ${ADMIN_USER:?Set ADMIN_USER in .env}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?Set ADMIN_PASSWORD_HASH in .env}
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
@@ -27,6 +29,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+      # The access log, for fail2ban
+      - ./logs:/var/log/caddy
 
 volumes:
   # The database, the configuration, the secret key and the data of the items: this is what needs to be backed up

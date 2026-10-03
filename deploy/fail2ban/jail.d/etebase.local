@@ -1,0 +1,13 @@
+# Blocks the addresses that tried a wrong password 10 times within 10 minutes, for an hour.
+[etebase]
+enabled = true
+filter = etebase
+# Change this if the deploy directory is somewhere else
+logpath = /opt/etebase/logs/access.log
+# Debian's default is to read the systemd journal, but this is a file
+backend = polling
+maxretry = 10
+findtime = 10m
+bantime = 1h
+# The ports are published by Docker, so its traffic doesn't go through the INPUT chain, and has to be blocked in DOCKER-USER
+action = iptables-allports[name=etebase, chain=DOCKER-USER, protocol=all]
