@@ -18,6 +18,20 @@ from .routers.member import member_router
 from .routers.websocket import websocket_router
 
 
+class APICORSMiddleware(CORSMiddleware):
+    """CORS for the API only: other sites shouldn't be able to make requests to the admin site in the name of the user."""
+
+    def __init__(self, app, api_prefix: str, **kwargs):
+        super().__init__(app, **kwargs)
+        self.api_prefix = api_prefix
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and not scope["path"].startswith(self.api_prefix):
+            await self.app(scope, receive, send)
+            return
+        await super().__call__(scope, receive, send)
+
+
 def create_application(prefix="", middlewares=[]):
     app = FastAPI(
         title="Etebase",
@@ -48,7 +62,8 @@ def create_application(prefix="", middlewares=[]):
         app.include_router(test_reset_view_router, prefix=f"{BASE_PATH}/test/authentication")
 
     app.add_middleware(
-        CORSMiddleware,
+        APICORSMiddleware,
+        api_prefix=f"{BASE_PATH}/",
         allow_origin_regex="https?://.*",
         allow_credentials=True,
         allow_methods=["*"],

@@ -625,6 +625,15 @@ async def chunk_update(
     collection: models.Collection = Depends(get_collection),
 ):
     # IGNORED FOR NOW: col_it = get_object_or_404(col.items, uid=collection_item_uid)
+    # The uid becomes part of the path of the file, so it has to be checked before anything is saved
+    chunk_uid_field = models.CollectionItemChunk._meta.get_field("uid")
+    try:
+        chunk_uid_field.run_validators(chunk_uid)
+        if len(chunk_uid) > chunk_uid_field.max_length:
+            raise django_exceptions.ValidationError("Too long")
+    except django_exceptions.ValidationError:
+        raise HttpError("invalid_uid", "Not a valid chunk uid.")
+
     if isinstance(request, MsgpackRequest):
         body = await request.raw_body()
     else:

@@ -73,6 +73,37 @@ async function rejects(what, error, promise) {
   items = await itemMgr.list();
   check("delete an item", items.data[0].isDeleted);
 
+  // Requests that used to make the server fail with an internal error
+  const api = `${serverUrl}/api/v1`;
+  const status = async (path, options) => (await fetch(api + path, options)).status;
+  check("a malformed Authorization header is rejected",
+    (await status(`/collection/${col.uid}/item/`, { headers: { Authorization: "Token" } })) === 401);
+  for (const uid of ["..", "....", "..AAAAAAAAAAAAAAAAAAAAAAAAAA", "A".repeat(61)]) {
+    const code = await status(`/collection/${col.uid}/item/${item.uid}/chunk/${uid}/`, {
+      method: "PUT",
+      headers: { Authorization: `Token ${etebase.authToken}`, "Content-Type": "application/octet-stream" },
+      body: "x",
+    });
+    check(`a chunk with the uid ${JSON.stringify(uid.slice(0, 30))} is rejected`, (code === 400) || (code === 404));
+  }
+
+  const validChunk = await status(`/collection/${col.uid}/item/${item.uid}/chunk/${"C".repeat(43)}/`, {
+    method: "PUT",
+    headers: { Authorization: `Token ${etebase.authToken}`, "Content-Type": "application/octet-stream" },
+    body: "x",
+  });
+  check("a chunk with a valid uid is accepted", validChunk === 201);
+
+  // Other sites may use the API, but not the admin site
+  const origin = "https://other.example";
+  const preflight = await fetch(`${api}/collection/list_multi/`, {
+    method: "OPTIONS",
+    headers: { Origin: origin, "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "authorization" },
+  });
+  check("other sites may use the API", preflight.headers.get("access-control-allow-origin") === origin);
+  const admin = await fetch(`${serverUrl}/admin/login/`, { headers: { Origin: origin } });
+  check("other sites may not use the admin site", admin.headers.get("access-control-allow-origin") === null);
+
   const members = await colMgr.getMemberManager(col).list();
   check("list the members of a collection", (members.data.length === 1) && (members.data[0].username === username));
 

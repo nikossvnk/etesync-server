@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.15.1
+- Only allow other sites (CORS) to use the API, not the admin site
+- Reject malformed Authorization headers and chunk uids, instead of failing with an internal server error
+
 ## Version 0.15.0
 - Update Django to 5.2 (LTS), 4.2 is not supported anymore
 - Update all of the dependencies to their current versions
