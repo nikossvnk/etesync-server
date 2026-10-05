@@ -92,8 +92,15 @@ jobs:
           expect "other hosts are rejected" 400 -H "Host: other.example" $url/api/v1/authentication/is_etebase/
           test "$(docker exec server id -un)" = etebase && echo "ok - it does not run as root"
 
+      - name: Check that the health check works with a host name that isn't 127.0.0.1
+        run: |
+          docker run -d --name server-named -e ETEBASE_ALLOWED_HOSTS=etebase.example.org server
+          timeout 90 sh -c 'until [ "$(docker inspect -f "{{.State.Health.Status}}" server-named)" = healthy ]; do sleep 2; done'
+          echo "ok - it is healthy"
+
       - name: Show the logs of the servers
         if: failure()
         run: |
           docker logs test-server || true
           docker logs server || true
+          docker logs server-named || true

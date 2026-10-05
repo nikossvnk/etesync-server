@@ -32,7 +32,9 @@ RUN python manage.py collectstatic --noinput
 VOLUME /data
 EXPOSE 3735
 
+# Any answer counts, as long as the server isn't failing: it answers with a 400 because 127.0.0.1 is not one of its
+# allowed host names, and those are only known from the configuration
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-    CMD wget -q -O /dev/null http://127.0.0.1:3735/api/v1/authentication/is_etebase/ || exit 1
+    CMD python -c "import http.client, sys; c = http.client.HTTPConnection('127.0.0.1', 3735, timeout=4); c.request('GET', '/api/v1/authentication/is_etebase/'); sys.exit(c.getresponse().status >= 500)"
 
 ENTRYPOINT ["/app/docker/server/entrypoint.sh"]

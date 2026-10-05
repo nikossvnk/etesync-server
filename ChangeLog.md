@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.15.2
+- Fix the health check of the server image, it failed unless 127.0.0.1 was one of the allowed hosts
+
 ## Version 0.15.1
 - Only allow other sites (CORS) to use the API, not the admin site
 - Reject malformed Authorization headers and chunk uids, instead of failing with an internal server error
