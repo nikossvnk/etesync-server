@@ -23,7 +23,9 @@
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options nosniff
-		Referrer-Policy no-referrer
+		# Not no-referrer: with it browsers send "Origin: null" when a form is submitted, and Django then
+		# refuses the login of the admin site (CSRF verification failed)
+		Referrer-Policy same-origin
 		-Server
 	}
 }
