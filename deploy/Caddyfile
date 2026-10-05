@@ -29,3 +29,7 @@
 		-Server
 	}
 }
+
+# Other sites served by the same Caddy (optional), e.g. for other services on this server.
+# Mount a directory with *.caddy files at /etc/caddy/sites to add them.
+import /etc/caddy/sites/*.caddy
