@@ -5,6 +5,12 @@ services:
   etebase:
     image: ${ETEBASE_IMAGE:-ghcr.io/nikossvnk/etesync-server}:${ETEBASE_VERSION:?Set ETEBASE_VERSION in .env}
     restart: unless-stopped
+    # Docker keeps the logs of containers forever unless they are limited
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       # Only used the first time it's started, to create /data/etebase-server.ini
       ETEBASE_ALLOWED_HOSTS: ${ETEBASE_DOMAIN:?Set ETEBASE_DOMAIN in .env}
@@ -15,6 +21,12 @@ services:
   caddy:
     image: caddy:2.11.6-alpine
     restart: unless-stopped
+    # Docker keeps the logs of containers forever unless they are limited
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - etebase
     environment:
