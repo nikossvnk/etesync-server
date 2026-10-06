@@ -3,6 +3,13 @@
   <h1 align="center">Etebase - Encrypt Everything</h1>
 </p>
 
+> [!NOTE]
+> **This is an independent fork** of the [Etebase server](https://github.com/etesync/server), the original
+> project of the EteSync authors. This fork is not affiliated with, endorsed by or supported by EteSync, Etebase or
+> [etesync.com](https://www.etesync.com) in any way. The history of the original project is kept as it is,
+> with its authors, and the changes of this fork follow it. The links to etebase.com and etesync.com below
+> are of the original project. Like the original, it's licensed under the AGPL-3.0.
+
 An [Etebase](https://www.etebase.com) (EteSync 2.0) server so you can run your own.
 
 [![Chat with us](https://img.shields.io/badge/chat-IRC%20|%20Matrix%20|%20Web-blue.svg)](https://www.etebase.com/community-chat/)
