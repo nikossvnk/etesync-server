@@ -1,0 +1,5 @@
+# Remembers the bans for 90 days (Debian's default is a day), so that the jails with
+# bantime.increment know who comes back. An address that stays quiet for 90 days starts again
+# from the first ban time.
+[DEFAULT]
+dbpurgeage = 90d

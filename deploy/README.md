@@ -95,17 +95,22 @@ The database is migrated when the server starts. Make a backup before updating.
 ## Blocking password guessing
 
 Caddy writes an access log to `logs/access.log`. With fail2ban, the addresses that try a wrong password
-(of the app, or of the admin site's prompt) 10 times within 10 minutes are blocked for an hour:
+(of the app, or of the admin site's prompt) 10 times within 10 minutes are blocked for an hour, and
+each time they come back for twice as long as the time before (up to a year):
 
 ```
 sudo apt install fail2ban
 sudo cp fail2ban/filter.d/etebase.conf /etc/fail2ban/filter.d/
 sudo cp fail2ban/jail.d/etebase.local /etc/fail2ban/jail.d/
+sudo cp fail2ban/fail2ban.d/history.local /etc/fail2ban/fail2ban.d/
 sudo systemctl restart fail2ban
 sudo fail2ban-client status etebase    # shows the blocked addresses
 ```
 
-Change `logpath` in `etebase.local` if this directory isn't `/opt/etebase`. To unblock an address: `sudo fail2ban-client set etebase unbanip <address>`.
+Change `logpath` in `etebase.local` if this directory isn't `/opt/etebase`. `history.local` makes
+fail2ban remember the bans for 90 days (Debian's default is a day), otherwise it forgets who came
+back. To unblock an address: `sudo fail2ban-client set etebase unbanip <address>`
+(this also forgets its earlier bans).
 
 ## Limits
 
