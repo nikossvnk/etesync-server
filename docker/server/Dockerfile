@@ -3,7 +3,7 @@
 #
 # Build it from the root of the repository:
 #   docker build -t etebase-server -f docker/server/Dockerfile .
-FROM python:3.12-alpine
+FROM python:3.14-alpine
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
