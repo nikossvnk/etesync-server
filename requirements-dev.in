@@ -1,6 +1,10 @@
+# The same versions as the server for the packages both have, e.g. Django for django-stubs
+-c requirements.txt
+
 coverage
 pip-tools
 pywatchman
 ruff
 mypy
-django-stubs
+# Its versions follow Django's
+django-stubs>=5.2,<6.0
