@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements-dev.txt requirements-dev.in
 #
-asgiref==3.13.0
+asgiref==3.8.1
     # via
     #   django
     #   django-stubs
@@ -14,7 +14,7 @@ click==8.1.7
     # via pip-tools
 coverage==7.5.3
     # via -r requirements-dev.in
-django==6.1.2
+django==5.0.6
     # via
     #   django-stubs
     #   django-stubs-ext
