@@ -12,7 +12,7 @@ build==1.2.1
     # via pip-tools
 click==8.1.7
     # via pip-tools
-coverage==7.5.3
+coverage==7.16.2
     # via -r requirements-dev.in
 django==6.1.2
     # via
@@ -28,7 +28,7 @@ mypy-extensions==1.0.0
     # via mypy
 packaging==24.0
     # via build
-pip-tools==7.4.1
+pip-tools==7.6.2
     # via -r requirements-dev.in
 pyproject-hooks==1.1.0
     # via
@@ -36,13 +36,13 @@ pyproject-hooks==1.1.0
     #   pip-tools
 pywatchman==2.0.0
     # via -r requirements-dev.in
-ruff==0.4.8
+ruff==0.17.1
     # via -r requirements-dev.in
 sqlparse==0.5.0
     # via django
 types-pyyaml==6.0.12.20240311
     # via django-stubs
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   django-stubs
     #   django-stubs-ext

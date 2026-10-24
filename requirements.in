@@ -1,8 +1,8 @@
 django>=6.1.2,<7.0
 msgpack
 pynacl
-fastapi>=0.104
-pydantic>=2.0.0
+fastapi>=0.156.4
+pydantic>=2.14.1
 typing_extensions
 uvicorn[standard]
 aiofiles
