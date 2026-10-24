@@ -10,6 +10,13 @@ updates:
       python:
         patterns: ["*"]
         update-types: [minor, patch]
+    ignore:
+      # Stay on Django's long-term support release (5.2, supported until April 2028). Moving to the
+      # next one (6.2) is done by hand. django-stubs' versions follow Django's.
+      - dependency-name: django
+        update-types: ["version-update:semver-major"]
+      - dependency-name: django-stubs
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /tests/smoke
