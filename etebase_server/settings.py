@@ -190,6 +190,11 @@ if any(os.path.isfile(x) for x in config_locations):
         ETEBASE_CREATE_USER_FUNC = "etebase_server.myauth.ldap.create_user"
         ETEBASE_API_PERMISSIONS_READ = ["etebase_server.myauth.ldap.is_user_in_ldap"]
 
+# SQLite's transactions take the write lock when they start. Otherwise a transaction that read first fails
+# with "database is locked" when it starts writing while another one is writing, without waiting for it.
+if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    DATABASES["default"]["OPTIONS"] = {"transaction_mode": "IMMEDIATE", **DATABASES["default"].get("OPTIONS", {})}
+
 # Efficient file streaming (for large files)
 SENDFILE_BACKEND = "etebase_server.fastapi.sendfile.backends.simple"
 SENDFILE_ROOT = MEDIA_ROOT

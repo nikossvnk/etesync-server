@@ -73,6 +73,22 @@ async function rejects(what, error, promise) {
   items = await itemMgr.list();
   check("delete an item", items.data[0].isDeleted);
 
+  // Changes at the same time, which SQLite used to fail with "database is locked": a transaction that
+  // read first couldn't start writing while another one was writing
+  const concurrent = await Promise.all(Array.from({ length: 10 }, async (_, i) => {
+    const concurrentCol = await colMgr.create(colType, { name: `Concurrent ${i}` }, "");
+    await colMgr.upload(concurrentCol);
+    const concurrentItemMgr = colMgr.getItemManager(concurrentCol);
+    await concurrentItemMgr.batch([await concurrentItemMgr.create({ name: `Concurrent item ${i}` }, `content ${i}`)]);
+    return concurrentCol.uid;
+  }));
+  const afterConcurrent = await colMgr.list(colType);
+  check("make changes at the same time", concurrent.every((uid) => afterConcurrent.data.some((x) => x.uid === uid)));
+  const lastConcurrent = await colMgr.fetch(concurrent[9]);
+  const lastConcurrentItems = await colMgr.getItemManager(lastConcurrent).list();
+  check("the content of an item changed at the same time",
+    (await lastConcurrentItems.data[0].getContent(Etebase.OutputFormat.String)) === "content 9");
+
   // Requests that used to make the server fail with an internal error
   const api = `${serverUrl}/api/v1`;
   const status = async (path, options) => (await fetch(api + path, options)).status;
